@@ -900,10 +900,10 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
 
 <script>
 (function(){
-  // Branchement au bureau : vide tant que la page « cross-system » n'est pas ajoutée à la fonction lead-page.
-  // Tant que c'est vide, la demande part sur WhatsApp, déjà rédigée.
-  var ENDPOINT = "";
-  var ANON = "";
+  // Branchement au bureau (09/10/2026) : la demande est enregistrée dans « Cross System · mes prospects »
+  // et arrive sur le Telegram de Greg. Si ENDPOINT est vide, la demande part sur WhatsApp, déjà rédigée.
+  var ENDPOINT = "https://xrtpqsddxwyipqftqrgk.supabase.co/functions/v1/lead-page";
+  var ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhydHBxc2RkeHd5aXBxZnRxcmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1ODY4NDgsImV4cCI6MjEwMjE2Mjg0OH0.rLZUEvWJDRaeDLY494R4e6tKB_VPt3R89gOuUyeDwvw"; // clé publique du bureau (faite pour être dans une page)
   var WA = "33745106069";
 
   var header = document.querySelector('header');
@@ -1080,7 +1080,7 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
     msg.className = 'f-msg';
     if (d.get('site_web')) { fini(); return; }
 
-    var reponses = { 'Travaux': d.get('metier'), 'Département': d.get('dep'), 'Rendez-vous': 'Rappel : ' + d.get('moment'), 'Provenance': location.href.split('#')[0] };
+    var reponses = { 'Métier': d.get('metier'), 'Département': d.get('dep'), 'Moment de rappel': d.get('moment'), 'Provenance': location.href.split('#')[0] };
 
     if (!ENDPOINT){
       var texte = 'Bonjour, je souhaite réserver un appel de 20 min.\n' +
