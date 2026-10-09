@@ -273,11 +273,40 @@ form .btn{width:100%;margin-top:20px;font-size:17px}
 .f-msg{margin-top:14px;font-size:14.5px;font-weight:600;display:none}
 .f-msg.err{display:block;color:var(--red-d)}
 .done{display:none;text-align:center;padding:30px 10px}
-.done svg{width:52px;height:52px;color:var(--green);margin:0 auto 14px}
+.done>svg{width:52px;height:52px;color:var(--green);margin:0 auto 14px}
 .done h3{font-size:28px;margin-bottom:10px}
 .done p{color:var(--steel);max-width:36ch;margin:0 auto 20px}
 form.sent .f-body{display:none}
 form.sent .done{display:block}
+
+/* Formulaire en 2 étapes */
+.f-step[hidden]{display:none}
+.f-step .f+.f{margin-top:18px}
+.f-etape{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:32px;margin-bottom:14px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--steel)}
+.f-retour{font-family:var(--body);font-size:14.5px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);background:none;border:0;padding:6px 0;cursor:pointer}
+.f-retour:hover{text-decoration:underline;text-underline-offset:3px}
+.chips-dep span{min-width:58px;text-align:center;padding:10px 12px}
+.f-legal{font-size:13px;line-height:1.5;color:var(--steel);margin-top:12px}
+.f-legal a{color:inherit;text-underline-offset:2px}
+.f-garantie{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--red-soft);font-size:13.5px;line-height:1.5}
+.f-garantie b{font-weight:800}
+.done-btns{display:grid;gap:10px;max-width:340px;margin:0 auto}
+.done-btns .btn{margin-top:0;font-size:16px}
+.h1-metier{display:block}
+
+/* Le formulaire s'ouvre sur place : panneau qui monte du bas sur téléphone, centré sur ordinateur */
+.sheet{border:0;padding:0;margin:auto auto 0;width:100%;max-width:560px;max-height:92vh;max-height:92dvh;border-radius:20px 20px 0 0;background:var(--card);color:var(--ink);box-shadow:0 -24px 60px -24px rgba(0,0,0,.4);overflow:auto;overscroll-behavior:contain}
+.sheet[open]{animation:monte .3s var(--ease)}
+.sheet::backdrop{background:rgba(10,11,13,.55)}
+@keyframes monte{from{transform:translateY(48px);opacity:0}to{transform:none;opacity:1}}
+.sheet-tete{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px 14px;background:var(--card);border-bottom:1px solid var(--line)}
+.sheet-titre{font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:-.02em;line-height:1.15}
+.sheet-fermer{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:var(--paper);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.sheet-fermer svg{width:16px;height:16px}
+.sheet-corps{padding:18px 18px calc(22px + env(safe-area-inset-bottom))}
+.sheet form{border:0;border-radius:0;box-shadow:none;padding:0;background:transparent}
+html.sheet-ouvert{overflow:hidden}
+@media (min-width:681px){.sheet{margin:auto;border-radius:20px;max-height:88vh}}
 
 /* Mot surligné qui se dessine (façon L'Agence Growth) */
 mark.hl{background:linear-gradient(rgba(230,57,70,.18),rgba(230,57,70,.18)) no-repeat 0 90%/0% 34%;color:var(--red);padding:0 .06em;transition:background-size 1s .35s var(--ease)}
@@ -465,6 +494,7 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
   .band-track{animation-duration:90s}
   .rv{transform:none}
   @keyframes arrive{from{opacity:0}to{opacity:1}}
+  @keyframes monte{from{opacity:0}to{opacity:1}}
   .reel-v:hover{transform:none}
 }
 </style>
@@ -499,6 +529,29 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
     <div>
       <p class="label red">Artisans du bâtiment · Île-de-France</p>
       <h1>On remplit ton agenda de <mark class="hl">demandes de devis.</mark></h1>
+      <script>
+      /* Page au métier : le lien de la pub dit le métier (?metier=couvreur). Le titre le reprend avant l'affichage
+         et le formulaire l'aura déjà coché (window.CS_METIER). Sans métier connu, la page ne change pas. */
+      (function(){
+        var M = {
+          couvreur:['Couvreur ?','Couvreur'], plombier:['Plombier ou chauffagiste ?','Plombier · chauffagiste'],
+          chauffagiste:['Plombier ou chauffagiste ?','Plombier · chauffagiste'], electricien:['Électricien ?','Électricien'],
+          menuisier:['Menuisier ?','Menuisier'], cuisiniste:['Cuisiniste ?','Cuisiniste'], macon:['Maçon ?','Maçon'],
+          peintre:['Peintre ou façadier ?','Peintre · façadier'], facadier:['Peintre ou façadier ?','Peintre · façadier'],
+          renovation:['Entreprise de rénovation ?','Rénovation globale'], paysagiste:['Paysagiste ?','Paysagiste']
+        };
+        try {
+          var m = (location.search.match(/[?&]metier=([^&#]*)/) || [])[1];
+          if (!m) return;
+          var x = M[decodeURIComponent(m).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')];
+          if (!x) return;
+          window.CS_METIER = x[1];
+          var h1 = document.querySelector('.hero h1'), s = document.createElement('span');
+          s.className = 'h1-metier'; s.textContent = x[0] + ' ';
+          h1.insertBefore(s, h1.firstChild);
+        } catch(e){}
+      })();
+      </script>
       <p class="lead">On filme tes chantiers, on en fait des pubs autour de chez toi, et <b>les demandes arrivent sur ton téléphone.</b></p>
       <div class="ctas">
         <a class="btn btn-red" href="#appel">Réserver un appel de 20 min</a>
@@ -868,59 +921,98 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
 
     <form id="form" class="rv" novalidate>
       <div class="f-body">
-        <div class="f-grid">
-          <div class="f">
-            <label for="metier">Ton métier</label>
-            <select id="metier" name="metier" required>
-              <option value="">Choisir…</option>
-              <option>Couvreur</option><option>Plombier · chauffagiste</option><option>Électricien</option>
-              <option>Menuisier</option><option>Cuisiniste</option><option>Maçon</option>
-              <option>Peintre · façadier</option><option>Rénovation globale</option><option>Paysagiste</option>
-              <option>Autre métier du bâtiment</option>
-            </select>
-          </div>
-          <div class="f">
-            <label for="dep">Ton département</label>
-            <select id="dep" name="dep" required>
-              <option value="">Choisir…</option>
-              <option>75 · Paris</option><option>77 · Seine-et-Marne</option><option>78 · Yvelines</option>
-              <option>91 · Essonne</option><option>92 · Hauts-de-Seine</option><option>93 · Seine-Saint-Denis</option>
-              <option>94 · Val-de-Marne</option><option>95 · Val-d'Oise</option><option>Hors Île-de-France</option>
-            </select>
-          </div>
-          <div class="f">
-            <label for="nom">Prénom et nom</label>
-            <input id="nom" name="nom" autocomplete="name" required maxlength="80">
-          </div>
-          <div class="f">
-            <label for="tel">Téléphone</label>
-            <input id="tel" name="tel" type="tel" inputmode="tel" autocomplete="tel" required placeholder="06 12 34 56 78">
-          </div>
+        <div class="f-step" data-step="1">
+          <p class="f-etape">Étape 1 sur 2</p>
           <fieldset class="f full">
-            <legend>Quand est-ce qu'on te rappelle ?</legend>
+            <legend>Ton métier</legend>
             <div class="chips">
-              <label><input type="radio" name="moment" value="Le matin" checked><span>Le matin</span></label>
-              <label><input type="radio" name="moment" value="Le midi"><span>Le midi</span></label>
-              <label><input type="radio" name="moment" value="L'après-midi"><span>L'après-midi</span></label>
-              <label><input type="radio" name="moment" value="Après 18 h"><span>Après 18 h</span></label>
+              <label><input type="radio" name="metier" value="Couvreur"><span>Couvreur</span></label>
+              <label><input type="radio" name="metier" value="Plombier · chauffagiste"><span>Plombier · chauffagiste</span></label>
+              <label><input type="radio" name="metier" value="Électricien"><span>Électricien</span></label>
+              <label><input type="radio" name="metier" value="Menuisier"><span>Menuisier</span></label>
+              <label><input type="radio" name="metier" value="Cuisiniste"><span>Cuisiniste</span></label>
+              <label><input type="radio" name="metier" value="Maçon"><span>Maçon</span></label>
+              <label><input type="radio" name="metier" value="Peintre · façadier"><span>Peintre · façadier</span></label>
+              <label><input type="radio" name="metier" value="Rénovation globale"><span>Rénovation globale</span></label>
+              <label><input type="radio" name="metier" value="Paysagiste"><span>Paysagiste</span></label>
+              <label><input type="radio" name="metier" value="Autre métier du bâtiment"><span>Autre métier du bâtiment</span></label>
             </div>
           </fieldset>
-          <div class="hp" aria-hidden="true"><label for="site_web">Site web</label><input id="site_web" name="site_web" tabindex="-1" autocomplete="off"></div>
-          <label class="consent f full"><input type="checkbox" id="ok" name="ok" required><span>J'accepte d'être rappelé par Cross System au sujet de cette demande. Mon numéro ne sert qu'à ça (voir <a href="confidentialite.html">confidentialité</a>).</span></label>
+          <fieldset class="f full">
+            <legend>Ton département</legend>
+            <div class="chips chips-dep">
+              <label><input type="radio" name="dep" value="75 · Paris" aria-label="75, Paris"><span>75</span></label>
+              <label><input type="radio" name="dep" value="77 · Seine-et-Marne" aria-label="77, Seine-et-Marne"><span>77</span></label>
+              <label><input type="radio" name="dep" value="78 · Yvelines" aria-label="78, Yvelines"><span>78</span></label>
+              <label><input type="radio" name="dep" value="91 · Essonne" aria-label="91, Essonne"><span>91</span></label>
+              <label><input type="radio" name="dep" value="92 · Hauts-de-Seine" aria-label="92, Hauts-de-Seine"><span>92</span></label>
+              <label><input type="radio" name="dep" value="93 · Seine-Saint-Denis" aria-label="93, Seine-Saint-Denis"><span>93</span></label>
+              <label><input type="radio" name="dep" value="94 · Val-de-Marne" aria-label="94, Val-de-Marne"><span>94</span></label>
+              <label><input type="radio" name="dep" value="95 · Val-d'Oise" aria-label="95, Val-d'Oise"><span>95</span></label>
+              <label><input type="radio" name="dep" value="Hors Île-de-France" aria-label="Hors Île-de-France"><span>Hors IDF</span></label>
+            </div>
+          </fieldset>
+          <button class="btn btn-red" type="button" id="suite">Continuer</button>
         </div>
-        <button class="btn btn-red" type="submit">Demander mon appel</button>
+        <div class="f-step" data-step="2" hidden>
+          <p class="f-etape"><button class="f-retour" type="button" id="retour">← Retour</button><span>Étape 2 sur 2</span></p>
+          <div class="f-grid">
+            <div class="f">
+              <label for="nom">Prénom et nom</label>
+              <input id="nom" name="nom" autocomplete="name" required maxlength="80">
+            </div>
+            <div class="f">
+              <label for="tel">Téléphone</label>
+              <input id="tel" name="tel" type="tel" inputmode="tel" autocomplete="tel" required placeholder="06 12 34 56 78">
+            </div>
+            <fieldset class="f full">
+              <legend>Quand est-ce qu'on te rappelle ?</legend>
+              <div class="chips">
+                <label><input type="radio" name="moment" value="Le matin" checked><span>Le matin</span></label>
+                <label><input type="radio" name="moment" value="Le midi"><span>Le midi</span></label>
+                <label><input type="radio" name="moment" value="L'après-midi"><span>L'après-midi</span></label>
+                <label><input type="radio" name="moment" value="Après 18 h"><span>Après 18 h</span></label>
+              </div>
+            </fieldset>
+            <div class="hp" aria-hidden="true"><label for="site_web">Site web</label><input id="site_web" name="site_web" tabindex="-1" autocomplete="off"></div>
+          </div>
+          <button class="btn btn-red" type="submit">Demander mon appel</button>
+          <p class="f-legal">En envoyant, tu acceptes qu'on te rappelle au sujet de cette demande. Ton numéro ne sert qu'à ça (voir <a href="confidentialite.html">confidentialité</a>).</p>
+          <p class="f-garantie">Appel de 20 min, gratuit et sans engagement.<br><b>Garantie : 20 000 € de chantiers signés en 3 mois.</b> Sinon, on continue gratuitement.</p>
+        </div>
         <p class="f-msg" id="fmsg" role="alert"></p>
       </div>
       <div class="done" tabindex="-1" id="done">
         <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
         <h3>Demande envoyée.</h3>
-        <p>On te rappelle au moment que tu as choisi pour fixer les 20 minutes.</p>
+        <p>On te rappelle au moment que tu as choisi pour fixer les 20 minutes. L'appel viendra du 07 45 10 60 69 : enregistre-le pour ne pas le rater.</p>
+        <div class="done-btns">
+          <a class="btn btn-line" href="assets/cross-system.vcf">
+            <svg viewBox="0 0 256 256" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"><circle cx="108" cy="96" r="56"/><path d="M24 208c20-28 50-44 84-44s64 16 84 44"/><path d="M200 112h48M224 88v48"/></g></svg>
+            Enregistrer notre numéro
+          </a>
+          <a class="btn btn-line wa-link" href="https://wa.me/33745106069" target="_blank" rel="noopener">
+            <svg class="wa-ico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M152.58,145.23l23,11.48A24,24,0,0,1,152,176a72.08,72.08,0,0,1-72-72A24,24,0,0,1,99.29,80.46l11.48,23L101,118a8,8,0,0,0-.73,7.51,56.47,56.47,0,0,0,30.15,30.15A8,8,0,0,0,138,155ZM232,128A104,104,0,0,1,79.12,219.82L45.07,231.17a16,16,0,0,1-20.24-20.24l11.35-34.05A104,104,0,1,1,232,128Zm-40,24a8,8,0,0,0-4.42-7.16l-32-16a8,8,0,0,0-8,.5l-14.69,9.8a40.55,40.55,0,0,1-16-16l9.8-14.69a8,8,0,0,0,.5-8l-16-32A8,8,0,0,0,104,64a40,40,0,0,0-40,40,88.1,88.1,0,0,0,88,88A40,40,0,0,0,192,152Z"/></svg>
+            Écrire sur WhatsApp
+          </a>
+        </div>
       </div>
     </form>
   </div>
 </section>
 
 </main>
+
+<!-- Le formulaire s'ouvre ici, sur place, quand on clique sur « Réserver » (il y est déplacé, puis remis à sa place) -->
+<dialog class="sheet" id="sheet" aria-labelledby="sheet-titre">
+  <div class="sheet-tete">
+    <p class="sheet-titre" id="sheet-titre">20 minutes pour voir si c'est fait pour toi.</p>
+    <button class="sheet-fermer" type="button" id="sheet-fermer" aria-label="Fermer">
+      <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M64 64l128 128M192 64L64 192" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="sheet-corps" id="sheet-corps"></div>
+</dialog>
 
 <footer>
   <div class="wrap foot">
@@ -1118,6 +1210,11 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
     fbq('init', PIXEL_ID); fbq('track', 'PageView');
   }
   window.mesurerDemande = function(){ if (window.fbq && lireChoix() === 'oui') fbq('track', 'Lead'); };
+  window.mesurerContact = function(){ if (window.fbq && lireChoix() === 'oui') fbq('track', 'Contact'); };
+  // Un clic vers WhatsApp compte comme un contact pour Meta (seulement si les cookies sont acceptés)
+  document.querySelectorAll('a[href^="https://wa.me/"]').forEach(function(a){
+    a.addEventListener('click', function(){ window.mesurerContact(); });
+  });
   if (PIXEL_ID){
     var bandeau = document.getElementById('cookies'), lienCookies = document.getElementById('cookies-lien');
     lienCookies.hidden = false;
@@ -1145,24 +1242,70 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
     document.getElementById('avis').hidden = false;
   }
 
-  // Formulaire
+  // Formulaire en 2 étapes : métier et département d'abord (2 touches), puis nom, téléphone et moment du rappel
   var form = document.getElementById('form'), msg = document.getElementById('fmsg');
+  var etape1 = form.querySelector('[data-step="1"]'), etape2 = form.querySelector('[data-step="2"]');
   function telOk(t){
     var n = String(t||'').replace(/[^\d+]/g,'');
     if (n.indexOf('+33')===0) n = '0'+n.slice(3); else if (n.indexOf('0033')===0) n = '0'+n.slice(4);
     return /^0[1-9]\d{8}$/.test(n) ? n : null;
   }
   function erreur(t, champ){ msg.textContent = t; msg.className = 'f-msg err'; if(champ) champ.focus(); }
+  function premier(nom){ return form.querySelector('input[name="' + nom + '"]'); }
+  function etape1Ok(d){
+    if (!d.get('metier')) { erreur('Choisis ton métier.', premier('metier')); return false; }
+    if (!d.get('dep')) { erreur('Choisis ton département.', premier('dep')); return false; }
+    return true;
+  }
+  function allerEtape(n){ etape1.hidden = n !== 1; etape2.hidden = n !== 2; msg.className = 'f-msg'; }
+  if (window.CS_METIER) form.querySelectorAll('input[name="metier"]').forEach(function(r){ if (r.value === window.CS_METIER) r.checked = true; });
+  // Choisis au doigt, le métier et le département font passer seuls à l'étape 2 (pas au clavier, où les flèches cochent)
+  var dernierDoigt = 0;
+  etape1.addEventListener('pointerdown', function(){ dernierDoigt = Date.now(); });
+  etape1.addEventListener('change', function(){
+    var d = new FormData(form);
+    if (d.get('metier') && d.get('dep') && Date.now() - dernierDoigt < 1500) setTimeout(function(){ allerEtape(2); form.nom.focus(); }, 250);
+  });
+  document.getElementById('suite').addEventListener('click', function(){
+    if (etape1Ok(new FormData(form))) { allerEtape(2); form.nom.focus(); }
+  });
+  document.getElementById('retour').addEventListener('click', function(){
+    allerEtape(1); (form.querySelector('input[name="dep"]:checked') || premier('dep')).focus();
+  });
+
+  // Le formulaire s'ouvre sur place (panneau) au lieu de faire défiler toute la page jusqu'en bas
+  var sheet = document.getElementById('sheet'), ancre = document.createComment(' place du formulaire ');
+  form.parentNode.insertBefore(ancre, form);
+  function ouvrirFormulaire(){
+    form.classList.add('in');
+    document.getElementById('sheet-corps').appendChild(form);
+    document.documentElement.classList.add('sheet-ouvert');
+    sheet.showModal();
+    var sansDefiler = {preventScroll:true};
+    if (form.classList.contains('sent')) document.getElementById('done').focus(sansDefiler);
+    else if (!etape2.hidden) form.nom.focus(sansDefiler);
+    else (form.querySelector('input[name="metier"]:checked') ? premier('dep') : premier('metier')).focus(sansDefiler);
+  }
+  sheet.addEventListener('close', function(){
+    ancre.parentNode.insertBefore(form, ancre.nextSibling);
+    document.documentElement.classList.remove('sheet-ouvert');
+  });
+  document.getElementById('sheet-fermer').addEventListener('click', function(){ sheet.close(); });
+  sheet.addEventListener('click', function(e){ if (e.target === sheet) sheet.close(); }); // clic sur le fond assombri
+  if (typeof sheet.showModal === 'function'){
+    document.querySelectorAll('a[href="#appel"]').forEach(function(a){
+      a.addEventListener('click', function(e){ e.preventDefault(); ouvrirFormulaire(); });
+    });
+  }
 
   form.addEventListener('submit', function(ev){
     ev.preventDefault();
     var d = new FormData(form);
-    if (!d.get('metier')) return erreur('Choisis ton métier.', form.metier);
-    if (!d.get('dep')) return erreur('Choisis ton département.', form.dep);
+    if (!d.get('metier') || !d.get('dep')) { allerEtape(1); etape1Ok(d); return; }
+    if (etape2.hidden) { allerEtape(2); form.nom.focus(); return; } // Entrée à l'étape 1 = Continuer
     if (!String(d.get('nom')||'').trim()) return erreur('Indique ton prénom et ton nom.', form.nom);
     var tel = telOk(d.get('tel'));
     if (!tel) return erreur('Ce numéro ne semble pas complet. Exemple : 06 12 34 56 78.', form.tel);
-    if (!form.ok.checked) return erreur('Coche la case pour qu\'on puisse te rappeler.', form.ok);
     msg.className = 'f-msg';
     if (d.get('site_web')) { fini(); return; }
 
