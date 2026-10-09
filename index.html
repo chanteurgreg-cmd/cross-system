@@ -1020,10 +1020,17 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
 
   // Pixel Meta : rien ne se charge sans accord. Mettre ici le numéro du pixel Cross System pour l'activer
   // (et mettre à jour la page confidentialité, partie cookies).
-  var PIXEL_ID = '';
+  var PIXEL_ID = '1069437392527262'; // pixel « Cross System », créé le 09/10/2026 sur le compte pub de Greg
   var CLE_COOKIES = 'cs-cookies';
-  function lireChoix(){ try { return localStorage.getItem(CLE_COOKIES); } catch(e){ return null; } }
-  function noterChoix(v){ try { localStorage.setItem(CLE_COOKIES, v); } catch(e){} }
+  var SIX_MOIS = 182 * 24 * 3600 * 1000; // le choix est redemandé au bout de 6 mois
+  function lireChoix(){
+    try {
+      var c = JSON.parse(localStorage.getItem(CLE_COOKIES) || 'null');
+      if (!c || !c.v || (Date.now() - c.t) > SIX_MOIS) return null;
+      return c.v;
+    } catch(e){ return null; }
+  }
+  function noterChoix(v){ try { localStorage.setItem(CLE_COOKIES, JSON.stringify({ v: v, t: Date.now() })); } catch(e){} }
   function chargerPixel(){
     if (window.fbq || !PIXEL_ID) return;
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
