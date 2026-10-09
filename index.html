@@ -103,6 +103,25 @@ header.scrolled{border-bottom-color:var(--line)}
 .hero-ad figcaption{margin-top:14px;font-size:13.5px;color:var(--steel);text-align:center}
 .hero-ad figcaption a{color:var(--ink);font-weight:700;text-underline-offset:3px}
 
+/* Le film en haut de page (remplace le téléphone de la pub LCR) */
+.hero-grid{grid-template-columns:1fr 1.15fr}
+.hero h1{font-size:clamp(34px,3.7vw,50px)}
+.hero-film{width:100%;margin:0}
+.film-cadre{position:relative;border-radius:22px;overflow:hidden;background:var(--night);aspect-ratio:16/9;box-shadow:0 40px 80px -36px rgba(21,23,27,.55)}
+.film-cadre video{display:block;width:100%;height:100%;object-fit:cover;background:#111}
+.film-play{position:absolute;inset:0;border:0;margin:0;padding:20px;display:flex;align-items:flex-end;justify-content:flex-end;gap:14px;cursor:pointer;color:#fff;font:inherit;text-align:left;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.5))}
+.fp-rond{width:62px;height:62px;border-radius:50%;background:var(--red-btn);display:grid;place-items:center;box-shadow:0 10px 30px rgba(219,50,64,.45);flex:none;transition:transform .2s}
+.fp-rond svg{width:24px;height:24px;margin-left:3px}
+.film-play:hover .fp-rond,.film-play:focus-visible .fp-rond{transform:scale(1.07)}
+.fp-txt{order:-1;font-weight:800;font-size:19px;line-height:1.15;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.fp-txt small{display:block;font-weight:500;font-size:14px;opacity:.9;margin-top:3px}
+.film-cadre.joue .film-play{display:none}
+.hero-film figcaption{margin-top:14px;font-size:13.5px;color:var(--steel)}
+.hero-film figcaption a{color:var(--ink);font-weight:700;text-underline-offset:3px}
+@media (max-width:960px){.hero-grid{grid-template-columns:1fr}}
+@media (max-width:680px){.fp-rond{width:54px;height:54px}.fp-txt{display:none}}
+
 /* Étape 4 : les demandes */
 .step-feed{width:300px;background:var(--tg-bg);border-radius:22px;padding:14px 12px 12px;border:1px solid var(--tg-line)}
 .step-feed .tg-feed{height:236px}
@@ -457,12 +476,12 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
       </div>
     </div>
 
-    <figure class="hero-ad">
-      <div class="hero-phone">
-        <video id="hero-video" src="assets/hero-lcr.mp4" poster="assets/hero-lcr.webp" autoplay muted loop playsinline preload="auto" aria-label="Début de la pub tournée pour LCR Couverture"></video>
-        <button class="hero-pause" type="button" aria-label="Mettre la vidéo en pause" aria-pressed="false"><svg class="i-pause" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,48V208a16,16,0,0,1-16,16H160a16,16,0,0,1-16-16V48a16,16,0,0,1,16-16h40A16,16,0,0,1,216,48ZM96,32H56A16,16,0,0,0,40,48V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V48A16,16,0,0,0,96,32Z"/></svg><svg class="i-play" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></button>
+    <figure class="hero-film">
+      <div class="film-cadre">
+        <video id="film" src="assets/film-cross-system.mp4" poster="assets/film-cross-system.webp" preload="none" playsinline aria-label="Le film Cross System, 1 min 21, avec la voix off"></video>
+        <button class="film-play" type="button" aria-label="Regarder le film avec le son"><span class="fp-rond"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg></span><span class="fp-txt">Regarde le film<small>1 min 21 · avec le son</small></span></button>
       </div>
-      <figcaption>La pub tournée pour LCR Couverture, couvreur en Essonne. <a href="#clients">Voir toutes les pubs</a></figcaption>
+      <figcaption>Ce qu'on fait pour toi, en 1 min 21. <a href="#clients">Voir les pubs de nos clients</a></figcaption>
     </figure>
   </div>
 </section>
@@ -937,6 +956,18 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
     if (hv.paused){ hv.play().catch(function(){}); hp.setAttribute('aria-pressed','false'); hp.setAttribute('aria-label','Mettre la vidéo en pause'); }
     else { hv.pause(); hp.setAttribute('aria-pressed','true'); hp.setAttribute('aria-label','Relancer la vidéo'); }
   });
+
+  // Le film du haut : il se lance avec le son quand on appuie (pas de lecture automatique : il tient sur la voix off)
+  var film = document.getElementById('film');
+  if (film){
+    var cadre = film.parentNode, lancer = cadre.querySelector('.film-play');
+    lancer.addEventListener('click', function(){
+      cadre.classList.add('joue'); film.controls = true; film.muted = false;
+      var p = film.play(); if (p && p.catch) p.catch(function(){ film.muted = true; film.play().catch(function(){}); });
+      if (window.fbq) { try { fbq('track', 'ViewContent', { content_name: 'Film Cross System' }); } catch(e){} }
+    });
+    film.addEventListener('ended', function(){ cadre.classList.remove('joue'); film.controls = false; film.load(); });
+  }
 
   // Le surlignage du titre se dessine au chargement
   requestAnimationFrame(function(){ hero.classList.add('on'); });
