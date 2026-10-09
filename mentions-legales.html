@@ -6,6 +6,10 @@
 <title>Mentions légales - Cross System</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>
+/* Clair ou foncé : le choix fait avec le bouton du haut (gardé dans ce navigateur), sinon le réglage de l'appareil */
+(function(){try{var t=localStorage.getItem('cs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>
 <style>
 @font-face{font-family:'Bricolage Grotesque';font-style:normal;font-weight:500 800;font-display:swap;src:url(assets/fonts/bricolage-grotesque-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
 @font-face{font-family:'Manrope';font-style:normal;font-weight:400 800;font-display:swap;src:url(assets/fonts/manrope-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
@@ -15,7 +19,7 @@ body{background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,sa
 a{color:var(--red-d);text-underline-offset:3px}
 :focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:4px}
 .wrap{max-width:760px;margin:0 auto;padding:0 20px}
-header{padding:22px 0;border-bottom:1px solid var(--line);background:var(--card)}
+header{padding:16px 0;border-bottom:1px solid var(--line);background:var(--card)}
 .logo{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:800;font-size:19px;letter-spacing:-.02em;text-decoration:none;color:var(--ink)}
 .logo i{font-style:normal;color:var(--red);display:inline-block;transform:skewX(-10deg);margin:0 2px}
 main{padding:48px 0 80px}
@@ -26,12 +30,27 @@ p,ul{margin-bottom:10px}
 ul{padding-left:20px}
 .a-confirmer{background:#FFF3B0;color:#6B5300;padding:1px 6px;border-radius:4px}
 .retour{display:inline-block;margin-top:40px;font-weight:700}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.mode{flex:none;width:42px;height:42px;display:grid;place-items:center;border:0;border-radius:10px;background:transparent;color:var(--steel);box-shadow:inset 0 0 0 1.5px var(--line);cursor:pointer;transition:color .2s,box-shadow .2s}
+.mode:hover{color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.mode svg{display:block;width:20px;height:20px}
+.mode .i-sun{display:none}
+@media (max-width:680px){.mode{width:44px;height:44px}}
 :root{color-scheme:light dark}
-@media (prefers-color-scheme:dark){:root{--paper:#111316;--card:#191C20;--ink:#EEF0EC;--steel:#A6ACB4;--line:#2A2E34;--red-d:#FF7A82}}
+/* Mode sombre : il suit l'appareil, sauf si le visiteur a choisi avec le bouton du haut (data-theme sur <html>) */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#111316;--card:#191C20;--ink:#EEF0EC;--steel:#A6ACB4;--line:#2A2E34;--red-d:#FF7A82}:where(:root:not([data-theme="light"])) .mode .i-sun{display:block}:where(:root:not([data-theme="light"])) .mode .i-moon{display:none}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#111316;--card:#191C20;--ink:#EEF0EC;--steel:#A6ACB4;--line:#2A2E34;--red-d:#FF7A82}
+:where(:root[data-theme="dark"]) .mode .i-sun{display:block}
+:where(:root[data-theme="dark"]) .mode .i-moon{display:none}
+:root[data-theme="light"]{color-scheme:light}
 </style>
 </head>
 <body>
-<header><div class="wrap"><a class="logo" href="./">CROSS<i>/</i>SYSTEM</a></div></header>
+<header><div class="wrap bar"><a class="logo" href="./">CROSS<i>/</i>SYSTEM</a>
+<button class="mode" id="mode" type="button" aria-label="Mode sombre" aria-pressed="false" title="Passer en mode sombre">
+<svg class="i-moon" viewBox="0 0 256 256" aria-hidden="true"><path d="M108.11,28.11A96.09,96.09,0,0,0,227.89,147.89,96,96,0,1,1,108.11,28.11Z" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<svg class="i-sun" viewBox="0 0 256 256" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round"><circle cx="128" cy="128" r="56"/><path d="M128 40V16M128 240v-24M40 128H16M240 128h-24M65.8 65.8 48.8 48.8M207.2 207.2l-17-17M65.8 190.2l-17 17M207.2 48.8l-17 17"/></g></svg>
+</button></div></header>
 <main class="wrap">
 <h1>Mentions légales</h1>
 <p class="maj">Mises à jour le 9 octobre 2026</p>
@@ -60,5 +79,22 @@ ul{padding-left:20px}
 <p>Ce que nous faisons de tes informations est expliqué sur la page <a href="confidentialite.html">confidentialité</a>.</p>
 <a class="retour" href="./">Retour à l'accueil</a>
 </main>
+<script>
+// Bouton clair / foncé, comme sur la page d'accueil (même choix gardé : cs-theme)
+(function(){
+  var mode = document.getElementById('mode');
+  var sombreAppareil = window.matchMedia('(prefers-color-scheme: dark)');
+  function estSombre(){ var t = document.documentElement.getAttribute('data-theme'); return t ? t === 'dark' : sombreAppareil.matches; }
+  function majMode(){ var s = estSombre(); mode.setAttribute('aria-pressed', s ? 'true' : 'false'); mode.title = s ? 'Passer en mode clair' : 'Passer en mode sombre'; }
+  mode.addEventListener('click', function(){
+    var t = estSombre() ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    try { localStorage.setItem('cs-theme', t); } catch(e){}
+    majMode();
+  });
+  if (sombreAppareil.addEventListener) sombreAppareil.addEventListener('change', majMode);
+  majMode();
+})();
+</script>
 </body>
 </html>

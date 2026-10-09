@@ -8,6 +8,10 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F4F5F2" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111316" media="(prefers-color-scheme: dark)">
+<script>
+/* Clair ou foncé : le choix fait avec le bouton du haut (gardé dans ce navigateur), sinon le réglage de l'appareil */
+(function(){try{var t=localStorage.getItem('cs-theme');if(t!=='light'&&t!=='dark')return;document.documentElement.setAttribute('data-theme',t);var c=t==='dark'?'#111316':'#F4F5F2';document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.setAttribute('content',c);});}catch(e){}})();
+</script>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preload" href="assets/hero-lcr.webp" as="image" fetchpriority="high">
@@ -82,6 +86,13 @@ header.scrolled{border-bottom-color:var(--line)}
 .bar nav a{font-size:14.5px;font-weight:600;color:var(--steel);text-decoration:none}
 .bar nav a:hover{color:var(--ink)}
 .bar .btn{margin-left:auto}
+
+/* Bouton clair / foncé */
+.mode{margin-left:auto;flex:none;width:42px;height:42px;display:grid;place-items:center;border:0;border-radius:10px;background:transparent;color:var(--steel);box-shadow:inset 0 0 0 1.5px var(--line2);cursor:pointer;transition:color .2s,box-shadow .2s}
+.mode:hover{color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.mode svg{width:20px;height:20px}
+.mode .i-sun{display:none}
+.bar .mode + .btn{margin-left:-8px}
 
 /* Haut de page */
 .hero{padding:56px 0 72px}
@@ -378,17 +389,34 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
 .rv{opacity:0;transform:translateY(16px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
 .rv.in{opacity:1;transform:none}
 
+/* Mode sombre : il suit l'appareil, sauf si le visiteur a choisi avec le bouton du haut (data-theme sur <html>).
+   :where() garde la même priorité qu'avant pour les règles des composants. */
 @media (prefers-color-scheme:dark){
-  :root{
+  :root:not([data-theme="light"]){
     --paper:#111316; --card:#191C20; --ink:#EEF0EC; --steel:#A6ACB4; --steel2:#8C939C;
     --line:#2A2E34; --line2:#3A3F46; --red-soft:rgba(230,57,70,.16); --red-text:#FF7A82;
     --night:#0A0B0D; --green:#3DBB86;
     --tg-bg:#0E1621; --tg-line:#1B2735; --tg-msg:#182533; --tg-btn:rgba(255,255,255,.07); --tg-btn-txt:#8CC8F2;
   }
-  .btn-red{box-shadow:0 10px 24px -12px rgba(230,57,70,.6)}
-  .reel-v{background:#000}
-  mark.hl{background-image:linear-gradient(rgba(255,92,102,.24),rgba(255,92,102,.24))}
+  :where(:root:not([data-theme="light"])) .btn-red{box-shadow:0 10px 24px -12px rgba(230,57,70,.6)}
+  :where(:root:not([data-theme="light"])) .reel-v{background:#000}
+  :where(:root:not([data-theme="light"])) mark.hl{background-image:linear-gradient(rgba(255,92,102,.24),rgba(255,92,102,.24))}
+  :where(:root:not([data-theme="light"])) .mode .i-sun{display:block}
+  :where(:root:not([data-theme="light"])) .mode .i-moon{display:none}
 }
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#111316; --card:#191C20; --ink:#EEF0EC; --steel:#A6ACB4; --steel2:#8C939C;
+  --line:#2A2E34; --line2:#3A3F46; --red-soft:rgba(230,57,70,.16); --red-text:#FF7A82;
+  --night:#0A0B0D; --green:#3DBB86;
+  --tg-bg:#0E1621; --tg-line:#1B2735; --tg-msg:#182533; --tg-btn:rgba(255,255,255,.07); --tg-btn-txt:#8CC8F2;
+}
+:where(:root[data-theme="dark"]) .btn-red{box-shadow:0 10px 24px -12px rgba(230,57,70,.6)}
+:where(:root[data-theme="dark"]) .reel-v{background:#000}
+:where(:root[data-theme="dark"]) mark.hl{background-image:linear-gradient(rgba(255,92,102,.24),rgba(255,92,102,.24))}
+:where(:root[data-theme="dark"]) .mode .i-sun{display:block}
+:where(:root[data-theme="dark"]) .mode .i-moon{display:none}
+:root[data-theme="light"]{color-scheme:light}
 
 @media (max-width:960px){
   .hero-grid,.book{grid-template-columns:1fr;gap:40px}
@@ -403,6 +431,7 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
   .wrap{padding:0 16px}
   .hero{padding:32px 0 56px}
   .bar .btn{display:none}
+  .mode{width:44px;height:44px}
   .who,.g-rules,.f-grid,.res-grid{grid-template-columns:1fr}
   .res{padding:22px 18px 24px}
   .res-star{grid-template-columns:1fr;gap:18px;padding:26px 20px}
@@ -454,6 +483,10 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
       <a href="#garantie">La garantie</a>
       <a href="#questions">Questions</a>
     </nav>
+    <button class="mode" id="mode" type="button" aria-label="Mode sombre" aria-pressed="false" title="Passer en mode sombre">
+      <svg class="i-moon" viewBox="0 0 256 256" aria-hidden="true"><path d="M108.11,28.11A96.09,96.09,0,0,0,227.89,147.89,96,96,0,1,1,108.11,28.11Z" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="i-sun" viewBox="0 0 256 256" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round"><circle cx="128" cy="128" r="56"/><path d="M128 40V16M128 240v-24M40 128H16M240 128h-24M65.8 65.8 48.8 48.8M207.2 207.2l-17-17M65.8 190.2l-17 17M207.2 48.8l-17 17"/></g></svg>
+    </button>
     <a class="btn btn-red btn-sm" href="#appel">Réserver un appel de 20 min</a>
   </div>
 </header>
@@ -936,6 +969,21 @@ footer{padding:40px 0 110px;font-size:14px;color:var(--steel)}
     mbar.classList.toggle('show', pastHero && !atForm);
   }
   window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // Bouton clair / foncé : le choix reste dans ce navigateur (cs-theme), sinon on suit l'appareil
+  var mode = document.getElementById('mode');
+  var sombreAppareil = window.matchMedia('(prefers-color-scheme: dark)');
+  function estSombre(){ var t = document.documentElement.getAttribute('data-theme'); return t ? t === 'dark' : sombreAppareil.matches; }
+  function majMode(){ var s = estSombre(); mode.setAttribute('aria-pressed', s ? 'true' : 'false'); mode.title = s ? 'Passer en mode clair' : 'Passer en mode sombre'; }
+  mode.addEventListener('click', function(){
+    var t = estSombre() ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    try { localStorage.setItem('cs-theme', t); } catch(e){}
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){ m.setAttribute('content', t === 'dark' ? '#111316' : '#F4F5F2'); });
+    majMode();
+  });
+  if (sombreAppareil.addEventListener) sombreAppareil.addEventListener('change', majMode);
+  majMode();
 
   // Apparitions douces + mètre ruban qui se déroule
   if ('IntersectionObserver' in window){
